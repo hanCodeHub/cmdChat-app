@@ -1,81 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
     <title>inChat App</title>
     <link rel="stylesheet" href="/css/styles.css" />
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+        integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css"
+        integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.css">
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.js"></script>
+    <link rel="stylesheet" type="text/css"
+        href="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.css">
+    <script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.js"></script>
     <script type="text/javascript" src="https://momentjs.com/downloads/moment.min.js"></script>
 
     <link rel="icon" type="image/png" sizes="32x32" href="/img/icons8-chat-64.png">
-
+    <!-- This file uses Bootstrap 4 classes
+    referfence: https://getbootstrap.com/docs/4.4/getting-started/introduction/ -->
 </head>
+
 <body>
-
-<!-- Full-width container for the application -->
-<div class="container">
-
-    <div class="row justify-content-center h-100 my-5">
-        <!-- Login button group with input field for username -->
-        <form id="login-form" name="login-form" class="col-md-6">
-            <div class="input-group">
-                <input id="username" type="text" class="form-control" autocomplete="off" placeholder="Username" />
-                <div class="input-group-append">
-                    <button class="btn btn-primary fas fa-sign-in-alt" type="submit"></button>
-                </div>
-            </div>
-        </form>
-        <!-- Logout button -->
-        <button id="logout-btn" class="btn btn-secondary" type="submit">Logout</button>
-    </div>
-
-    <!-- Shows status of the connection -->
-    <div id="status" class="my-3">
-
-    </div>
-
-    <div id="chat-page" class="hide main">
-        <div class="row justify-content-center h-100">
-
-            <div class="col-md-8 col-xl-6">
-                <div class="card">
-                    <div class="card-header">
-                        <div class="d-flex bd-highlight">
-                            <div class="chat-summary">
-                                <span>inChat by Han Xu</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card-body">
-
-                        <div id="chat">
-
-                        </div>
-
-                    </div>
-
-                    <form id="message-controls" name="message-controls" class="card-footer">
-                        <div class="input-group">
-                            <textarea id="message" class="form-control all-input" placeholder="Type your message..."></textarea>
-                            <div class="input-group-append">
-                                <button class="fas fa-location-arrow" type="submit"></button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
+    <!-- Standard Bootstrap full-width jumbotron for the header -->
+    <div class="jumbotron jumbotron-fluid">
+        <div class="container">
+            <h1 class="display-4">cmdChat by Han Xu</h1>
+            <p class="lead">
+                Sign in with a username and start chatting!
+            </p>
         </div>
     </div>
-</div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.4.0/sockjs.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
-<script src="/js/script.js"></script>
+    <div class="container">
+
+        <div class="row justify-content-center h-100 my-5">
+            <!-- Login button group with input field for username -->
+            <form id="login-form" name="login-form" class="col-sm-4">
+                <div class="input-group">
+                    <input id="username" type="text" class="form-control" autocomplete="off" placeholder="Username" />
+                    <div class="input-group-append">
+                        <button class="btn btn-primary fas fa-sign-in-alt" type="submit"></button>
+                    </div>
+                </div>
+            </form>
+            <!-- Logout button -->
+            <button id="logout-btn" class="btn btn-secondary col-sm-1" type="submit">Logout</button>
+        </div>
+
+        <!-- Shows status of the connection -->
+        <div id="status" class="my-3 row justify-content-center h-100 my-1" hidden>
+            <!-- populated by JS, hidden by default -->
+        </div>
+
+        <!-- Main chat section -->
+        <section id="chat-section">
+            <div class="row justify-content-center h-100 my-5">
+
+                <!-- Card used to render messages in the card body -->
+                <div class="col-md-8">
+                    <div class="card">
+                        <!-- card header -->
+                        <div class="card-header">
+                            <div>
+                                Channel abc
+                            </div>
+                        </div>
+                        <!-- card body -->
+                        <div id="chat-body" class="card-body">
+                            <div id="chat">
+                            </div>
+                        </div>
+                        <!-- card footer -->
+                        <form id="message-controls" name="message-controls" class="card-footer">
+                            <div class="input-group">
+                                <input id="message" class="form-control" placeholder="Type your message..."></input>
+                                <div class="input-group-append">
+                                    <button class="fas fa-location-arrow btn btn-primary" type="submit">
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </div>
+
+    <!-- sockJs and StompJs libraries used to work with websockets -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.4.0/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script src="/js/script.js"></script>
 
 </body>
+
 </html>

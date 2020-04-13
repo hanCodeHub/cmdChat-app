@@ -3,13 +3,15 @@
 let stompClient
 let username
 
-// Configuration in stomp-js documentation: 
+// Configuration of stompJs documentation: 
 // https://stomp-js.github.io/stomp-websocket/codo/extra/docs-src/Usage.md.html
 
+
+// event handler for when the user signs in
 const connect = (event) => {
     username = document.querySelector('#username').value.trim()
 
-    if (username) {
+    if (username && !stompClient) {
         // creates WebSocket client and connects to STOMP server
         stompClient = Stomp.over(new SockJS('/ws')) 
         // connect(headers, connectCallback, errorCallback)
@@ -19,31 +21,36 @@ const connect = (event) => {
 }
 
 
+// callback function upon successful connection to the STOMP server
 const onConnect = () => {
-
+    // static channel for now - dynamic when multichannels are available
     let channel = 'abc'
 
     // client subscribes to the given channel on successful connection
-    stompClient.subscribe(`/topic/public/${channel}`, onMessageReceived)
+    // subscribe(destination, callback every time something is broadcasted to destination)
+    stompClient.subscribe(`/topic/public/${channel}`, renderMessage)
+
     // client sends message to app to broadcast new user to the given channel
     stompClient.send(`/app/chat.newUser/public/${channel}`,
         {},
         JSON.stringify({sender: username, state: 'CONNECT'})
     )
-    const status = document.querySelector('#status')
-    status.className = 'hide'
 }
 
 
+// event handler for when user disconnects/logout
 const disconnect = () => {
     // client disconnects from the STOMP server
     // onDisconnect called only if client was connected
-    stompClient.disconnect(onDisconnect, {})
+    if (stompClient && username) {
+        stompClient.disconnect(onDisconnect, {})
+    }
 }
 
 
+// callback function upon successful disconnect from the STOMP server
 const onDisconnect = () => {
-    // calls onMessageReceived manually because connection to server is cut
+    // calls renderMessage manually because connection to server is cut
     const disconnectMessage = {
         state: "DISCONNECT",
         content: null,
@@ -53,32 +60,37 @@ const onDisconnect = () => {
     const payload = {
         body: JSON.stringify(disconnectMessage)
     }
+    username = null;  // resets username
 
     // disconnect message will only be rendered for the current user
-    onMessageReceived(payload)
+    renderMessage(payload)
 }
 
 
+// callback function to display an error message to the status section
 const onError = (error) => {
     const status = document.querySelector('#status')
+    status.hidden = false;
     status.innerHTML = error.headers.message
 }
 
 
+// event handler for sending message to a destination in the STOMP server
 const sendMessage = (event) => {
     const messageInput = document.querySelector('#message')
     const messageContent = messageInput.value.trim()
 
-    let channel = 'abc'
+    let channel = 'abc'  // hard coded channel for now
 
-    if (messageContent && stompClient) {
-        const chatMessage = {
+    // constructs the message object
+    if (messageContent && stompClient && username) {
+        const chatMessage = {  
             sender: username,
             content: messageInput.value,
             state: 'CHAT',
-            time: moment().calendar()
+            time: moment().calendar()  // momentJs used to get current readable time
         }
-        // client broadcasts message to channel
+        // client broadcasts message to channel and resets input
         stompClient.send(`/app/chat.send/public/${channel}`, {}, JSON.stringify(chatMessage))
         messageInput.value = ''
     }
@@ -86,75 +98,63 @@ const sendMessage = (event) => {
 }
 
 
-const onMessageReceived = (payload) => {
+// renders a message to the chat section
+const renderMessage = (payload) => {
     const message = JSON.parse(payload.body);
 
-    const chatCard = document.createElement('div')
-    chatCard.className = 'card-body'
+    // creates message element within a flexbox container
+    const msgContainer = document.createElement('div')
+    msgContainer.className = 'justify-content-start mb-4'
+    const msgElement = document.createElement('p')
 
-    const flexBox = document.createElement('div')
-    flexBox.className = 'd-flex justify-content-end mb-4'
-    chatCard.appendChild(flexBox)
-
-    const messageElement = document.createElement('div')
-    messageElement.className = 'msg_container_send'
-
-    flexBox.appendChild(messageElement)
-
+    // sets message content based on its state
     if (message.state === 'CONNECT') {
-
         message.content = message.sender + ' connected!'
     } else if (message.state === 'DISCONNECT') {
-
         message.content = message.sender + ' left!'
     } else {
+        // displays details about sender name and time on top of message
+        const detailContainer = document.createElement('div')
+        const senderName = document.createElement('span')
+        const messageTime = document.createElement('span')
+        
+        senderName.className = "h6 font-weight-bold mr-2"
+        messageTime.className = "badge badge-light align-middle"
+        senderName.innerHTML = message.sender
+        messageTime.innerHTML = message.time
 
-
-        const avatarContainer = document.createElement('div')
-        avatarContainer.className = 'img_cont_msg'
-        const avatarElement = document.createElement('div')
-        avatarElement.className = 'circle user_img_msg'
-        const avatarText = document.createTextNode(message.sender[0])
-        avatarElement.appendChild(avatarText);
-        avatarElement.style['background-color'] = getAvatarColor(message.sender)
-        avatarContainer.appendChild(avatarElement)
-
-        messageElement.style['background-color'] = getAvatarColor(message.sender)
-
-        flexBox.appendChild(avatarContainer)
-
-        const time = document.createElement('span')
-        time.className = 'msg_time_send'
-        time.innerHTML = message.time
-        messageElement.appendChild(time)
-
+        detailContainer.appendChild(senderName)
+        detailContainer.appendChild(messageTime)
+        msgContainer.appendChild(detailContainer)
     }
 
-    messageElement.innerHTML = message.content
+    // populates message and adds to message container
+    msgElement.innerHTML = message.content
+    msgContainer.appendChild(msgElement)
 
+    // adds message container to chat
     const chat = document.querySelector('#chat')
-    chat.appendChild(flexBox)
-    chat.scrollTop = chat.scrollHeight
-}
-
-const hashCode = (str) => {
-    let hash = 0
-    for (let i = 0; i < str.length; i++) {
-       hash = str.charCodeAt(i) + ((hash << 5) - hash)
-    }
-    return hash
+    chat.appendChild(msgContainer)
+    scrollBottom()  // keep view scrolled to the bottom
 }
 
 
-const getAvatarColor = (messageSender) => {
-    const colours = ['#2196F3', '#32c787', '#1BC6B4', '#A1B4C4']
-    const index = Math.abs(hashCode(messageSender) % colours.length)
-    return colours[index]
+// Keeps the chat window scrolled to the bottom of messages
+const scrollBottom = () => {
+    const chatBody = document.getElementById("chat-body")
+    chatBody.scroll(0, chatBody.scrollHeight)
 }
 
+
+// EVENT LISTENERS
+// login
 const loginForm = document.querySelector('#login-form')
 loginForm.addEventListener('submit', connect)
+
+// send message
 const messageControls = document.querySelector('#message-controls')
 messageControls.addEventListener('submit', sendMessage)
+
+// logout
 const logoutBtn = document.querySelector('#logout-btn')
 logoutBtn.addEventListener('click', disconnect)
