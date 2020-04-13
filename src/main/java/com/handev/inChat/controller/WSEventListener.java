@@ -24,6 +24,7 @@ public class WSEventListener {
 
     /**
      * Listens for and handles a disconnected session event.
+     * Triggers either from user closing browser tab or clicking Logout.
      * @param event obj representing a disconnected session
      */
     @EventListener
@@ -32,20 +33,23 @@ public class WSEventListener {
         // or encodes message to STOMP frame
         var accessor = StompHeaderAccessor.wrap(event.getMessage());
 
-        // retrieves username from session map
+        // retrieves user's username and channel from session map
         Map<String, Object> sessionMap = accessor.getSessionAttributes();
         if (sessionMap != null && !sessionMap.isEmpty()) {
             String userName = (String) sessionMap.get("username");
             String channel = (String) sessionMap.get("channel");
-            // logs the user disconnecting and broadcasts to subscribers
 
+            // logs the user disconnecting and broadcasts to subscribers
             LOGGER.info(userName + " has disconnected from " + channel);
             // constructs message and send to clients subscribed to given channel
             TextMessage message = new TextMessage(
                     MessageState.DISCONNECT,
                     userName
             );
-            sendOps.convertAndSend("/topic/public", message);
+
+            // updates client channel
+            String endpoint = "/topic/public/" + channel;
+            sendOps.convertAndSend(endpoint, message);
 
         }
 

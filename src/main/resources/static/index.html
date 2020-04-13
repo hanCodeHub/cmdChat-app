@@ -11,28 +11,31 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.js"></script>
     <script type="text/javascript" src="https://momentjs.com/downloads/moment.min.js"></script>
 
-    <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/img/icons8-chat-64.png">
 
 </head>
 <body>
 
-<div class="container-fluid h-100">
+<!-- Full-width container for the application -->
+<div class="container">
 
-    <div id="status" class="login">
-
+    <div class="row justify-content-center h-100 my-5">
+        <!-- Login button group with input field for username -->
+        <form id="login-form" name="login-form" class="col-md-6">
+            <div class="input-group">
+                <input id="username" type="text" class="form-control" autocomplete="off" placeholder="Username" />
+                <div class="input-group-append">
+                    <button class="btn btn-primary fas fa-sign-in-alt" type="submit"></button>
+                </div>
+            </div>
+        </form>
+        <!-- Logout button -->
+        <button id="logout-btn" class="btn btn-secondary" type="submit">Logout</button>
     </div>
 
-    <div id="login">
-        <div class="main row justify-content-center h-100">
-            <form id="login-form" name="login-form">
-                <div class="input-group">
-                    <input id="username" type="text" class="form-control all-input" autocomplete="off" placeholder="Username" />
-                    <div class="input-group-append">
-                        <button class="fas fa-location-arrow" type="submit"></button>
-                    </div>
-                </div>
-            </form>
-        </div>
+    <!-- Shows status of the connection -->
+    <div id="status" class="my-3">
+
     </div>
 
     <div id="chat-page" class="hide main">

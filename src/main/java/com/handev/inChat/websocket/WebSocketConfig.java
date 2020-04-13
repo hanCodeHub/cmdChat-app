@@ -1,4 +1,4 @@
-package com.handev.inChat.web;
+package com.handev.inChat.websocket;
 
 
 import org.springframework.context.annotation.Configuration;
@@ -23,7 +23,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(final StompEndpointRegistry registry) {
 
-        // allows SockJs frontend to choose best method of transport
+        // allows SockJs frontend to connect to this STOMP server
         registry.addEndpoint("/ws").withSockJS();
     }
 

@@ -3,32 +3,30 @@
 let stompClient
 let username
 
+// Configuration in stomp-js documentation: 
+// https://stomp-js.github.io/stomp-websocket/codo/extra/docs-src/Usage.md.html
+
 const connect = (event) => {
     username = document.querySelector('#username').value.trim()
 
     if (username) {
-        const login = document.querySelector('#login')
-        login.classList.add('hide')
-
-        const chatPage = document.querySelector('#chat-page')
-        chatPage.classList.remove('hide')
-
         // creates WebSocket client and connects to STOMP server
-        const socket = new SockJS('/ws')
-        stompClient = Stomp.over(socket)
-        stompClient.connect({}, onConnected, onError)
+        stompClient = Stomp.over(new SockJS('/ws')) 
+        // connect(headers, connectCallback, errorCallback)
+        stompClient.connect({}, onConnect, onError)
     }
     event.preventDefault()
 }
 
-const onConnected = () => {
 
-    let room = 'abc'
+const onConnect = () => {
+
+    let channel = 'abc'
 
     // client subscribes to the given channel on successful connection
-    stompClient.subscribe(`/topic/public/${room}`, onMessageReceived)
-    // client broadcasts to the channel
-    stompClient.send(`/app/chat.newUser/public/${room}`,
+    stompClient.subscribe(`/topic/public/${channel}`, onMessageReceived)
+    // client sends message to app to broadcast new user to the given channel
+    stompClient.send(`/app/chat.newUser/public/${channel}`,
         {},
         JSON.stringify({sender: username, state: 'CONNECT'})
     )
@@ -36,17 +34,42 @@ const onConnected = () => {
     status.className = 'hide'
 }
 
+
+const disconnect = () => {
+    // client disconnects from the STOMP server
+    // onDisconnect called only if client was connected
+    stompClient.disconnect(onDisconnect, {})
+}
+
+
+const onDisconnect = () => {
+    // calls onMessageReceived manually because connection to server is cut
+    const disconnectMessage = {
+        state: "DISCONNECT",
+        content: null,
+        sender: username,
+        time: null
+    }
+    const payload = {
+        body: JSON.stringify(disconnectMessage)
+    }
+
+    // disconnect message will only be rendered for the current user
+    onMessageReceived(payload)
+}
+
+
 const onError = (error) => {
     const status = document.querySelector('#status')
-    status.innerHTML = 'Could not find the connection you were looking for. Move along. Or, Refresh the page!'
-    status.style.color = 'red'
+    status.innerHTML = error.headers.message
 }
+
 
 const sendMessage = (event) => {
     const messageInput = document.querySelector('#message')
     const messageContent = messageInput.value.trim()
 
-    let room = 'abc'
+    let channel = 'abc'
 
     if (messageContent && stompClient) {
         const chatMessage = {
@@ -56,7 +79,7 @@ const sendMessage = (event) => {
             time: moment().calendar()
         }
         // client broadcasts message to channel
-        stompClient.send(`/app/chat.send/public/${room}`, {}, JSON.stringify(chatMessage))
+        stompClient.send(`/app/chat.send/public/${channel}`, {}, JSON.stringify(chatMessage))
         messageInput.value = ''
     }
     event.preventDefault();
@@ -79,13 +102,13 @@ const onMessageReceived = (payload) => {
     flexBox.appendChild(messageElement)
 
     if (message.state === 'CONNECT') {
-        messageElement.classList.add('event-message')
+
         message.content = message.sender + ' connected!'
     } else if (message.state === 'DISCONNECT') {
-        messageElement.classList.add('event-message')
+
         message.content = message.sender + ' left!'
     } else {
-        messageElement.classList.add('chat-message')
+
 
         const avatarContainer = document.createElement('div')
         avatarContainer.className = 'img_cont_msg'
@@ -130,6 +153,8 @@ const getAvatarColor = (messageSender) => {
 }
 
 const loginForm = document.querySelector('#login-form')
-loginForm.addEventListener('submit', connect, true)
+loginForm.addEventListener('submit', connect)
 const messageControls = document.querySelector('#message-controls')
-messageControls.addEventListener('submit', sendMessage, true)
+messageControls.addEventListener('submit', sendMessage)
+const logoutBtn = document.querySelector('#logout-btn')
+logoutBtn.addEventListener('click', disconnect)
