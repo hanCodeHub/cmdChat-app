@@ -1,6 +1,6 @@
 /* CARD STYLES */
 #chat-body {
-    height: 25em;
+    height: 22em;
     overflow-y: scroll;
     overflow-x: hidden;
 }

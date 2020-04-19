@@ -13,6 +13,10 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 import java.util.Map;
 
+/**
+ * Listens for and handles events on the WebSocket connection
+ * @author Han Xu
+ */
 @Component
 public class WSEventListener {
 

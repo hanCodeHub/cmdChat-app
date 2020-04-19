@@ -1,8 +1,10 @@
 package com.handev.inChat.controller;
 
 import com.handev.inChat.model.TextMessage;
+import com.handev.inChat.model.TextMessageRepo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -10,6 +12,7 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Controller;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 /**
@@ -18,10 +21,16 @@ import java.util.Map;
 @Controller
 public class PublicChatController {
 
+    // ************* REFACTOR MESSAGE STATES INTO STATE PATTERN ***************
+
     public static final Logger LOGGER = LoggerFactory.getLogger(WSEventListener.class);
 
+    @Autowired
+    private TextMessageRepo textMessageRepo;
+
     /**
-     * Broadcasts incoming message to subscribers of /topic/public
+     * Broadcasts incoming message to subscribers of /topic/public.
+     * message.state == CHAT
      * @param message the TextMessage JSON received from client
      * @return the message payload to client subscribers of @SendTo destination
      */
@@ -31,12 +40,16 @@ public class PublicChatController {
             @DestinationVariable String channel,
             @Payload TextMessage message) {
 
+        // adds timestamp to message and saves it to DB
         LOGGER.info("Message sent by " + message.getSender() + " in public channel " + channel);
-        return message;
+        message.setDateTime(LocalDateTime.now());
+        textMessageRepo.save(message);
+
+        return message;  // broadcasts message to channel
     }
 
     /**
-     * Handles a new user joining the chat
+     * Handles a new user joining the chat. State == CONNECTED
      * @param message the TextMessage obj to be returned to client
      * @param accessor provides access to the user session
      * @return the message payload to client subscribers of @SendTo destination
@@ -54,9 +67,12 @@ public class PublicChatController {
             accessor.getSessionAttributes().put("username", message.getSender());
             accessor.getSessionAttributes().put("channel", channel);
         }
-        // logs user joining and return payload message to client
+
         LOGGER.info(message.getSender() + " has joined " + channel);
-        return message;
+        // adds timestamp to message and returns it to channel
+        message.setDateTime(LocalDateTime.now());
+
+        return message;  // broadcasts message to channel
     }
 
 }

@@ -12,7 +12,7 @@ const connect = (event) => {
     username = document.querySelector('#username').value.trim()
 
     if (username && !stompClient) {
-        // creates WebSocket client and connects to STOMP server
+        // creates WebSocket client and connects to STOMP server with SockJS
         stompClient = Stomp.over(new SockJS('/ws')) 
         // connect(headers, connectCallback, errorCallback)
         stompClient.connect({}, onConnect, onError)
@@ -23,7 +23,7 @@ const connect = (event) => {
 
 // callback function upon successful connection to the STOMP server
 const onConnect = () => {
-    // static channel for now - dynamic when multichannels are available
+    // single channel - dynamic when multichannels are available in future release 
     let channel = 'abc'
 
     // client subscribes to the given channel on successful connection
@@ -53,14 +53,14 @@ const onDisconnect = () => {
     // calls renderMessage manually because connection to server is cut
     const disconnectMessage = {
         state: "DISCONNECT",
-        content: null,
         sender: username,
-        time: null
     }
     const payload = {
         body: JSON.stringify(disconnectMessage)
     }
-    username = null;  // resets username
+    // resets username and STOMP client
+    username = null;  
+    stompClient = null;
 
     // disconnect message will only be rendered for the current user
     renderMessage(payload)
@@ -87,8 +87,7 @@ const sendMessage = (event) => {
         const chatMessage = {  
             sender: username,
             content: messageInput.value,
-            state: 'CHAT',
-            time: moment().calendar()  // momentJs used to get current readable time
+            state: 'CHAT'
         }
         // client broadcasts message to channel and resets input
         stompClient.send(`/app/chat.send/public/${channel}`, {}, JSON.stringify(chatMessage))
@@ -117,11 +116,17 @@ const renderMessage = (payload) => {
         const detailContainer = document.createElement('div')
         const senderName = document.createElement('span')
         const messageTime = document.createElement('span')
-        
         senderName.className = "h6 font-weight-bold mr-2"
         messageTime.className = "badge badge-light align-middle"
         senderName.innerHTML = message.sender
-        messageTime.innerHTML = message.time
+        
+        // constructs date and time
+        if (message.dateTime) {
+            const dt = new Date(message.dateTime)
+            const nowDate = dt.toDateString().substring(4, 10)
+            const nowTime = dt.toLocaleTimeString()
+            messageTime.innerHTML = `${nowDate} - ${nowTime}`
+        }
 
         detailContainer.appendChild(senderName)
         detailContainer.appendChild(messageTime)
