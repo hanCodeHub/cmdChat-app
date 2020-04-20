@@ -1,15 +1,15 @@
 'use strict'
 
-let stompClient
-let username
+let stompClient  // assigned when client connects to STOMP server
+let username  // assigned when user signs in
+let subscription  // the channel object that user is subscribed to
 
 // Configuration of stompJs documentation: 
 // https://stomp-js.github.io/stomp-websocket/codo/extra/docs-src/Usage.md.html
 
 
 // event handler for when the user signs in
-const connect = (event) => {
-    username = document.querySelector('#username').value.trim()
+const connect = () => {
 
     if (username && !stompClient) {
         // creates WebSocket client and connects to STOMP server with SockJS
@@ -17,24 +17,50 @@ const connect = (event) => {
         // connect(headers, connectCallback, errorCallback)
         stompClient.connect({}, onConnect, onError)
     }
-    event.preventDefault()
 }
 
 
 // callback function upon successful connection to the STOMP server
 const onConnect = () => {
-    // single channel - dynamic when multichannels are available in future release 
-    let channel = 'abc'
+    console.log(`${username} has connected to STOMP server`)
+}
 
-    // client subscribes to the given channel on successful connection
+
+// subscribes user to a given channel
+const subscribe = (event) => {
+    event.preventDefault()
+    if (subscription) return; // if user already subscribed, skip this for now
+
+    // hardcoded - CHANGE to dynamic when multichannels are available in future release 
+    const channel = 'abc'
+
     // subscribe(destination, callback every time something is broadcasted to destination)
-    stompClient.subscribe(`/topic/public/${channel}`, renderMessage)
+    subscription = stompClient.subscribe(`/topic/public/${channel}`, renderMessage)
 
     // client sends message to app to broadcast new user to the given channel
     stompClient.send(`/app/chat.newUser/public/${channel}`,
         {},
         JSON.stringify({ sender: username, state: 'CONNECT' })
     )
+}
+
+
+// unsubscribes from given channel
+const unsubscribe = () => {
+    if (!subscription) return;
+    
+    subscription.unsubscribe();
+    subscription = null
+    
+    // calls renderMessage manually because connection to server is cut
+    const disconnectMessage = {
+        state: "DISCONNECT",
+        sender: username,
+    }
+    const payload = {
+        body: JSON.stringify(disconnectMessage)
+    }
+    renderMessage(payload)
 }
 
 
@@ -59,8 +85,8 @@ const onDisconnect = () => {
         body: JSON.stringify(disconnectMessage)
     }
     // resets username and STOMP client
-    username = null;
     stompClient = null;
+    subscription = null;
 
     // disconnect message will only be rendered for the current user
     renderMessage(payload)
@@ -77,6 +103,9 @@ const onError = (error) => {
 
 // event handler for sending message to a destination in the STOMP server
 const sendMessage = (event) => {
+    event.preventDefault();
+    if (!subscription) return;
+
     const messageInput = document.querySelector('#message')
     const messageContent = messageInput.value.trim()
 
@@ -93,7 +122,6 @@ const sendMessage = (event) => {
         stompClient.send(`/app/chat.send/public/${channel}`, {}, JSON.stringify(chatMessage))
         messageInput.value = ''
     }
-    event.preventDefault();
 }
 
 
@@ -108,7 +136,7 @@ const renderMessage = (payload) => {
 
     // sets message content based on its state
     if (message.state === 'CONNECT') {
-        message.content = message.sender + ' connected!'
+        message.content = message.sender + ' joined!'
     } else if (message.state === 'DISCONNECT') {
         message.content = message.sender + ' left!'
     } else {
@@ -157,12 +185,12 @@ const login = () => {
 }
 
 
-// checks whether user is authenticated by pinging endpoint ping-user
-const checkUser = async () => {
+// logs the user out of the OAuth2 authentication
+const logout = async () => {
     try {
-        await fetch("http://localhost:8080/ping-user")
-            .then(res => res.json())
-            .then(userData => onUserLoggedIn(userData))
+        await fetch("/logout")
+            .then(res => res.text())
+            .then(text => onUserLoggedOut())
             .catch(err => console.log(err))
     } catch (err) {
         console.log(err)
@@ -170,16 +198,34 @@ const checkUser = async () => {
 }
 
 
-// Edits the page if user is logged in by fetching name first
-const onUserLoggedIn = (userData) => {
+// checks whether user is authenticated by pinging public endpoint /ping-user
+// checkUser() is invoked each time homepage loads
+const checkUser = async () => {
+    try {
+        await fetch("/ping-user")
+            .then(res => res.text())
+            .then(name => onUserAuth(name))
+            .catch(err => console.log(err))
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+
+// handler for when user is authenticated with a given name
+const onUserAuth = async (name) => {
     const bannerText = document.querySelector('#banner-text')
-    if (userData.name) {
+    // if user exists, fetches all user data from secured endpoint /user
+    if (name) {
         try {
-            fetch("http://localhost:8080/user")
+            await fetch("/user")
                 .then(res => res.json())
                 .then(user => {
-                    bannerText.innerHTML = user.name
-                    username = user.name;
+                    bannerText.innerHTML = `Hello ${user.name}! Your chat name is ${user.username}.`
+                    username = user.username; // username is OAuth2 client username
+                    // connects to STOMP server and registers user in DB
+                    connect()
+                    registerUser(username) // registers in session and saves to DB
                 })
                 .catch(err => console.log(err))
         } catch (err) {
@@ -187,15 +233,45 @@ const onUserLoggedIn = (userData) => {
         }
     }
     else {
-        bannerText.innerHTML = "Sign in with GitHub and start chatting!"
+        bannerText.innerHTML = "Sign in and start chatting!"
     }
 }
 
 
+// saves a user to the database via POST request to /user
+const registerUser = async (name) => {
+    const payload = {
+        name: name
+    }
+    
+    const response = await fetch('/user/register', {
+        method: 'POST', 
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload) 
+      });
+    console.log(response.json())
+
+    // saves in sessionStorage
+    
+}
+
+
+// handler for when user is logged out
+const onUserLoggedOut = () => {
+    const bannerText = document.querySelector('#banner-text')
+    bannerText.innerHTML = "Sign in and start chatting!"
+    // clear username and disconnect from STOMP server
+    username = null
+    disconnect()
+}
+
+
 // EVENT LISTENERS
-// login
-const loginForm = document.querySelector('#login-form')
-loginForm.addEventListener('submit', connect)
+// join a channel
+const joinForm = document.querySelector('#join-form')
+joinForm.addEventListener('submit', subscribe)
 
 // login with GitHub
 const loginBtn = document.querySelector('#login-btn')
@@ -206,7 +282,10 @@ const messageControls = document.querySelector('#message-controls')
 messageControls.addEventListener('submit', sendMessage)
 
 // logout
-const logoutBtn = document.querySelector('#logout-btn')
-logoutBtn.addEventListener('click', disconnect)
+const leaveBtn = document.querySelector('#leave-btn')
+leaveBtn.addEventListener('click', unsubscribe)
 
-checkUser();
+// if username is null check if user is  signed in
+if (!username) {
+    checkUser();
+}

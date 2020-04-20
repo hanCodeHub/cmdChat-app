@@ -1,4 +1,8 @@
 /* BANNER STYLES */
+.jumbotron-fluid {
+    padding-top: 3em;
+}
+
 #banner-title {
     font-weight: 300;
 }
@@ -16,4 +20,21 @@
 
 .show {
     display: block;
+}
+
+
+/* DOCUMENT STYLES */
+#footer {
+    position: fixed;
+    height: 2em;
+    background-color: #f3f3f3;
+    width: 100%;
+    bottom: 0;
+}
+
+#footer-text {
+    margin: 0;
+    padding-top: .3em;
+    padding-left: 3em;
+    font-style: italic;
 }

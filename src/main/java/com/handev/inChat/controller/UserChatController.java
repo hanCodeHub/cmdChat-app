@@ -1,7 +1,6 @@
 package com.handev.inChat.controller;
 
 import com.handev.inChat.model.TextMessage;
-import com.handev.inChat.model.User;
 import com.handev.inChat.model.UserRepo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,10 +47,6 @@ public class UserChatController {
             accessor.getSessionAttributes().put("username", message.getSender());
             accessor.getSessionAttributes().put("channel", channel);
         }
-
-        // saves user to DB
-        User user = new User(message.getSender());
-        userRepo.save(user);
 
         // adds timestamp to message
         LOGGER.info(message.getSender() + " has joined " + channel);

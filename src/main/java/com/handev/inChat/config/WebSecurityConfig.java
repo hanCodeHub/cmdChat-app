@@ -20,10 +20,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
      */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http    // customize secured endpoints
-                .authorizeRequests(a -> a
-                        .antMatchers("/", "/error", "/webjars/**", "/ping-user",
-                                "/js/**", "/img/**", "/css/**")
+        http
+                .cors().and().csrf().disable()  // disable csrf, cors enabled on individual endpoints
+                .authorizeRequests(a -> a  // customize secured endpoints
+                        .antMatchers("/", "/error", "/webjars/**", "/ping-user", "/user/register",
+                                "/js/**", "/img/**", "/css/**", "/h2-console/**")
                         .permitAll() // allow these endpoints and static assets
                         .anyRequest().authenticated() // any other endpoints secured
 
@@ -34,4 +35,5 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 )
                 .oauth2Login();
     }
+
 }

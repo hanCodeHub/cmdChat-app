@@ -25,12 +25,12 @@
     <!-- Standard Bootstrap full-width jumbotron for the header -->
     <div class="jumbotron jumbotron-fluid">
         <div class="container">
-            <h1 id="banner-title" class="display-5">cmdChat by Han Xu</h1>
+            <h1 id="banner-title" class="display-5">Welcome to cmdChat</h1>
             <p id="banner-text" class="lead">
-                Sign in with GitHub and start chatting!
+                Sign in and start chatting!
             </p>
             <button id="login-btn" class="btn btn-dark">
-                <i class="fab fa-github"></i> Login
+                <i class="fab fa-github"></i> Sign in with GitHub
             </button>
         </div>
     </div>
@@ -38,18 +38,18 @@
     <div class="container">
 
         <div class="row justify-content-center h-100 my-5">
-            <!-- Login button group with input field for username -->
-            <form id="login-form" name="login-form" class="col-sm-4">
+            <!-- Join channel button group with input field for username -->
+            <form id="join-form" name="join-form" class="col-sm-4">
                 <div class="input-group">
-                    <input id="username" type="text" class="form-control" autocomplete="off" placeholder="Username" />
+                    <input id="username" type="text" class="form-control" autocomplete="off" placeholder="join a channel..." />
                     <div class="input-group-append">
                         <button class="btn btn-primary fas fa-sign-in-alt" type="submit"></button>
                     </div>
                 </div>
             </form>
-            <!-- Logout button -->
+            <!-- Leave room button -->
             <div class="col-sm-1">
-                <button id="logout-btn" class="btn btn-secondary" type="submit">Logout</button>
+                <button id="leave-btn" class="btn btn-secondary" type="submit">Leave Channel</button>
             </div>
         </div>
 
@@ -93,27 +93,14 @@
         </section>
     </div>
 
+    <footer id="footer" class="container">
+        <p id="footer-text">Developed by Han Xu - han10@bu.edu</p>
+    </footer>
     <!-- sockJs and StompJs libraries used to work with websockets -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.4.0/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
     <script src="/js/script.js"></script>
 
-    <script>
-        // // returns the user name from OAuth2 client at endpoint /user
-        // function getUserName() {
-        //     try {
-        //         $.get("/user", function (data) {
-        //             $("#banner-text").html(data.name);
-        //             username = data.name;
-        //         });
-        //     } catch (error) {
-        //         console.log(error)
-        //     }
-        // }
-
-        // // tries to display user name and update global username
-        // getUserName()
-    </script>
 </body>
 
 </html>
