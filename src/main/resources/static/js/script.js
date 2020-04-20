@@ -13,7 +13,7 @@ const connect = (event) => {
 
     if (username && !stompClient) {
         // creates WebSocket client and connects to STOMP server with SockJS
-        stompClient = Stomp.over(new SockJS('/ws')) 
+        stompClient = Stomp.over(new SockJS('/ws'))
         // connect(headers, connectCallback, errorCallback)
         stompClient.connect({}, onConnect, onError)
     }
@@ -33,7 +33,7 @@ const onConnect = () => {
     // client sends message to app to broadcast new user to the given channel
     stompClient.send(`/app/chat.newUser/public/${channel}`,
         {},
-        JSON.stringify({sender: username, state: 'CONNECT'})
+        JSON.stringify({ sender: username, state: 'CONNECT' })
     )
 }
 
@@ -59,7 +59,7 @@ const onDisconnect = () => {
         body: JSON.stringify(disconnectMessage)
     }
     // resets username and STOMP client
-    username = null;  
+    username = null;
     stompClient = null;
 
     // disconnect message will only be rendered for the current user
@@ -84,7 +84,7 @@ const sendMessage = (event) => {
 
     // constructs the message object
     if (messageContent && stompClient && username) {
-        const chatMessage = {  
+        const chatMessage = {
             sender: username,
             content: messageInput.value,
             state: 'CHAT'
@@ -119,7 +119,7 @@ const renderMessage = (payload) => {
         senderName.className = "h6 font-weight-bold mr-2"
         messageTime.className = "badge badge-light align-middle"
         senderName.innerHTML = message.sender
-        
+
         // constructs date and time
         if (message.dateTime) {
             const dt = new Date(message.dateTime)
@@ -151,10 +151,55 @@ const scrollBottom = () => {
 }
 
 
+// logs the user in via connected OAuth2 client
+const login = () => {
+    location.href = '/oauth2/authorization/github'
+}
+
+
+// checks whether user is authenticated by pinging endpoint ping-user
+const checkUser = async () => {
+    try {
+        await fetch("http://localhost:8080/ping-user")
+            .then(res => res.json())
+            .then(userData => onUserLoggedIn(userData))
+            .catch(err => console.log(err))
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+
+// Edits the page if user is logged in by fetching name first
+const onUserLoggedIn = (userData) => {
+    const bannerText = document.querySelector('#banner-text')
+    if (userData.name) {
+        try {
+            fetch("http://localhost:8080/user")
+                .then(res => res.json())
+                .then(user => {
+                    bannerText.innerHTML = user.name
+                    username = user.name;
+                })
+                .catch(err => console.log(err))
+        } catch (err) {
+            console.log(err)
+        }
+    }
+    else {
+        bannerText.innerHTML = "Sign in with GitHub and start chatting!"
+    }
+}
+
+
 // EVENT LISTENERS
 // login
 const loginForm = document.querySelector('#login-form')
 loginForm.addEventListener('submit', connect)
+
+// login with GitHub
+const loginBtn = document.querySelector('#login-btn')
+loginBtn.addEventListener('click', login)
 
 // send message
 const messageControls = document.querySelector('#message-controls')
@@ -163,3 +208,5 @@ messageControls.addEventListener('submit', sendMessage)
 // logout
 const logoutBtn = document.querySelector('#logout-btn')
 logoutBtn.addEventListener('click', disconnect)
+
+checkUser();

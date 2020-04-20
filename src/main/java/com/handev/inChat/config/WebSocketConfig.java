@@ -1,4 +1,4 @@
-package com.handev.inChat.websocket;
+package com.handev.inChat.config;
 
 
 import org.springframework.context.annotation.Configuration;
@@ -8,8 +8,7 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
 /**
- * Spring Config class for Websocket Message Broker.
- * @author Han Xu
+ * Spring config class with boilerplate code for Websocket Message Broker.
  * @see <a href="https://spring.io/guides/gs/messaging-stomp-websocket/">Spring Websocket</a>
  */
 @Configuration

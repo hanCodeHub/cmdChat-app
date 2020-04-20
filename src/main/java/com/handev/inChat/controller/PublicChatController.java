@@ -22,8 +22,6 @@ import java.time.LocalDateTime;
 @Controller
 public class PublicChatController {
 
-    // ************* REFACTOR MESSAGE STATES INTO STATE PATTERN ***************
-
     public static final Logger LOGGER = LoggerFactory.getLogger(PublicChatController.class);
 
     @Autowired
@@ -46,14 +44,12 @@ public class PublicChatController {
 
         LOGGER.info("Message sent by " + message.getSender() + " in public channel " + channel);
 
-        // adds current timestamp and user id to message
+        // adds current timestamp to message
         message.setDateTime(LocalDateTime.now());
 
         // saves message to a User if sender name was provided
         if (message.getSender() != null) {
             User user = userRepo.findByName(message.getSender());
-            System.out.println(user);
-
             message.setUser(user);
         }
 

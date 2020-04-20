@@ -25,10 +25,13 @@
     <!-- Standard Bootstrap full-width jumbotron for the header -->
     <div class="jumbotron jumbotron-fluid">
         <div class="container">
-            <h1 class="display-4">cmdChat by Han Xu</h1>
-            <p class="lead">
-                Sign in with a username and start chatting!
+            <h1 id="banner-title" class="display-5">cmdChat by Han Xu</h1>
+            <p id="banner-text" class="lead">
+                Sign in with GitHub and start chatting!
             </p>
+            <button id="login-btn" class="btn btn-dark">
+                <i class="fab fa-github"></i> Login
+            </button>
         </div>
     </div>
 
@@ -45,7 +48,9 @@
                 </div>
             </form>
             <!-- Logout button -->
-            <button id="logout-btn" class="btn btn-secondary col-sm-1" type="submit">Logout</button>
+            <div class="col-sm-1">
+                <button id="logout-btn" class="btn btn-secondary" type="submit">Logout</button>
+            </div>
         </div>
 
         <!-- Shows status of the connection -->
@@ -93,6 +98,22 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
     <script src="/js/script.js"></script>
 
+    <script>
+        // // returns the user name from OAuth2 client at endpoint /user
+        // function getUserName() {
+        //     try {
+        //         $.get("/user", function (data) {
+        //             $("#banner-text").html(data.name);
+        //             username = data.name;
+        //         });
+        //     } catch (error) {
+        //         console.log(error)
+        //     }
+        // }
+
+        // // tries to display user name and update global username
+        // getUserName()
+    </script>
 </body>
 
 </html>

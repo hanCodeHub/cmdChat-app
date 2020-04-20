@@ -28,7 +28,7 @@ public class TextMessage {
     private String content;  // text content of the message
 
     @Size(min = 2, max = 50, message = "username should should be between 2 - 50 characters.")
-    private String sender;  // username of the sender
+    private String sender;  // username of the sender, same as User.getName()
 
     private LocalDateTime dateTime;  // timestamp of message
 

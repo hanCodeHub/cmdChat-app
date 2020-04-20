@@ -1,61 +1,46 @@
 package com.handev.inChat.controller;
 
-import com.handev.inChat.model.TextMessage;
-import com.handev.inChat.model.User;
-import com.handev.inChat.model.UserRepo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
-import org.springframework.stereotype.Controller;
 
-import java.time.LocalDateTime;
+import com.handev.inChat.model.User;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Collections;
 import java.util.Map;
 
-/**
- * Controller for handling and broadcasting User events.
- * @author Han Xu
- */
-@Controller
+@RestController
 public class UserController {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
+    /**
+     * Handles OAuth2 sign-in of user, saving it to DB with encoded password.
+     * @see <a href="https://spring.io/guides/tutorials/spring-boot-oauth2/">Spring Boot OAuth2</a>
+     * @param principal the user object signed in via OAuth2
+     */
+    @GetMapping("/user")
+    public Map<String, Object> user(@AuthenticationPrincipal OAuth2User principal) {
+        return Collections.singletonMap("name", principal.getAttribute("name"));
+    }
 
-    @Autowired
-    private UserRepo userRepo;
 
     /**
-     * Handles a new user joining the chat.
-     * message.state == CONNECTED
-     * @param message the TextMessage obj to be returned to client
-     * @param accessor provides access to the user session
-     * @return the message payload to client subscribers of @SendTo destination
+     * Obtains the current authenticated user and returns its name
+     * @return the name of the user if logged in
      */
-    @MessageMapping("/chat.newUser/public/{channel}")
-    @SendTo("/topic/public/{channel}")
-    public TextMessage newUser(
-            @DestinationVariable String channel,
-            @Payload TextMessage message,
-            SimpMessageHeaderAccessor accessor) {
-
-        // adds user's username and subscribed channel to web socket session map
-        Map<String, Object> session = accessor.getSessionAttributes();
-        if (session != null) {
-            accessor.getSessionAttributes().put("username", message.getSender());
-            accessor.getSessionAttributes().put("channel", channel);
+    @GetMapping("/ping-user")
+    public ResponseEntity<User> pingUserName() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserName = "";
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            currentUserName = authentication.getName();
         }
-
-        // saves user to DB
-        User user = new User(message.getSender());
-        userRepo.save(user);
-
-        // adds timestamp to message
-        LOGGER.info(message.getSender() + " has joined " + channel);
-        message.setDateTime(LocalDateTime.now());
-        return message;  // broadcasts message to channel
+        User thisUser = new User(currentUserName);
+        return new ResponseEntity<>(thisUser, HttpStatus.OK);
     }
 }

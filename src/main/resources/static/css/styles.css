@@ -1,6 +1,19 @@
+/* BANNER STYLES */
+#banner-title {
+    font-weight: 300;
+}
+
 /* CARD STYLES */
 #chat-body {
     height: 22em;
     overflow-y: scroll;
     overflow-x: hidden;
+}
+
+.hide {
+    display: none;
+}
+
+.show {
+    display: block;
 }

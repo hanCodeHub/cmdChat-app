@@ -13,17 +13,23 @@ import java.util.List;
 public class User {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;  // auto-generated primary key
 
     @Column(unique = true)
     @Size(min = 2, max = 50, message = "User name should be between 2-50 characters.")
     private String name;
 
+    @Size(min = 5, max = 50, message = "Password must be between 5-50 characters.")
+    private String password;
+
     @OneToMany(mappedBy = "user")  // mapped to user column in text_messages table
     private List<TextMessage> messages;  // one user to many text messages
 
-    // ADD A LIST OF CHANNELS HERE
+    // TODO: 4/19/20
+    // ADD A LIST OF CHANNELS HERE THAT USER INSTANCE BELONGS TO
+
+    /* constructors */
 
     public User() {}
 
@@ -47,6 +53,14 @@ public class User {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public List<TextMessage> getMessages() {

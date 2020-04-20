@@ -1,0 +1,11 @@
+# Links GitHub to OAuth2 authentication
+# owned by hanCodeHub in GitHub
+# reference: https://spring.io/guides/tutorials/spring-boot-oauth2/
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            clientId: 0fd39c414dc88798da3d
+            clientSecret: 104f6a3d5db7c891168e53feb27626d7fa6f9735
