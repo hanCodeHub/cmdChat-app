@@ -20,7 +20,7 @@ import java.util.Map;
 @Component
 public class WSEventListener {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(WSEventListener.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WSEventListener.class);
 
     // contains methods for working with STOMP messages
     @Autowired

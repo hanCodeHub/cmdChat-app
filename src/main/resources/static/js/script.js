@@ -48,10 +48,10 @@ const subscribe = (event) => {
 // unsubscribes from given channel
 const unsubscribe = () => {
     if (!subscription) return;
-    
+
     subscription.unsubscribe();
     subscription = null
-    
+
     // calls renderMessage manually because connection to server is cut
     const disconnectMessage = {
         state: "DISCONNECT",
@@ -225,7 +225,7 @@ const onUserAuth = async (name) => {
                     username = user.username; // username is OAuth2 client username
                     // connects to STOMP server and registers user in DB
                     connect()
-                    registerUser(username) // registers in session and saves to DB
+
                 })
                 .catch(err => console.log(err))
         } catch (err) {
@@ -243,18 +243,20 @@ const registerUser = async (name) => {
     const payload = {
         name: name
     }
-    
-    const response = await fetch('/user/register', {
-        method: 'POST', 
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload) 
-      });
-    console.log(response.json())
+    try {
+        await fetch('/user/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        })
+            .then(user => user)
+            .catch(err => console.log(err))
+    } catch (error) {
+        console.log(error)
+    }
 
-    // saves in sessionStorage
-    
 }
 
 

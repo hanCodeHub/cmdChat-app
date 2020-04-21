@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-public class UserController {
+public class UserAccountController {
 
     @Autowired
     UserRepo userRepo;
@@ -55,7 +55,6 @@ public class UserController {
     /**
      * Handles User creation on login and saves them to DB
      */
-    @CrossOrigin("http://localhost:8080")
     @PostMapping("/user/register")
     public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
         if (userRepo.findByName(user.getName()) != null)

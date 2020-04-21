@@ -13,4 +13,8 @@ public interface UserRepo extends JpaRepository<User, Integer> {
     /* custom query to find a User by name */
     @Query(value = "SELECT * FROM users WHERE name = ?1", nativeQuery = true)
     User findByName(String name);
+
+    /* custom query to find a User by oauthClientId */
+    @Query(value = "SELECT * FROM users WHERE oauth_client_id = ?1", nativeQuery = true)
+    User findByOauthClientId(Integer oauthClientId);
 }

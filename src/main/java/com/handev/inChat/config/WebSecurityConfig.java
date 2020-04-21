@@ -20,14 +20,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
      */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        http.headers().frameOptions().sameOrigin();  // allow same origin requests
+
         http
-                .cors().and().csrf().disable()  // disable csrf, cors enabled on individual endpoints
+                .csrf().disable()  // disable csrf, cors enabled on individual endpoints
                 .authorizeRequests(a -> a  // customize secured endpoints
                         .antMatchers("/", "/error", "/webjars/**", "/ping-user", "/user/register",
                                 "/js/**", "/img/**", "/css/**", "/h2-console/**")
                         .permitAll() // allow these endpoints and static assets
                         .anyRequest().authenticated() // any other endpoints secured
-
                 )
                 // return 401 if unauthorized
                 .exceptionHandling(e -> e

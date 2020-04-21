@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 /**
- * Controller for handling and broadcasting User events.
+ * Controller for handling and broadcasting User chat events.
  * @author Han Xu
  */
 @Controller
@@ -47,6 +47,8 @@ public class UserChatController {
             accessor.getSessionAttributes().put("username", message.getSender());
             accessor.getSessionAttributes().put("channel", channel);
         }
+
+        // TODO: 4/20/20 add subscribed channel to user
 
         // adds timestamp to message
         LOGGER.info(message.getSender() + " has joined " + channel);

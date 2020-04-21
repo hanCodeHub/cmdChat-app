@@ -12,11 +12,15 @@ import java.util.List;
 @Table(name = "users")
 public class User {
 
+    // TODO: 4/20/20 implement Builder class for User
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;  // auto-generated primary key
 
     @Column(unique = true)
+    private Integer oauthClientId;  // id obtained from 3rd party OAuth2 client authenticator
+
     @Size(min = 2, max = 50, message = "User name should be between 2-50 characters.")
     private String name;
 
@@ -37,6 +41,11 @@ public class User {
         this.name = name;
     }
 
+    public User(String name, Integer oauthClientId) {
+        this.oauthClientId = oauthClientId;
+        this.name = name;
+    }
+
     /* getters and setters */
 
     public Integer getId() {
@@ -45,6 +54,14 @@ public class User {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public Integer getOauthClientId() {
+        return oauthClientId;
+    }
+
+    public void setOauthClientId(Integer clientId) {
+        this.oauthClientId = clientId;
     }
 
     public String getName() {
