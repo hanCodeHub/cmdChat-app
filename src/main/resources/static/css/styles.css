@@ -14,14 +14,9 @@
     overflow-x: hidden;
 }
 
-.hide {
-    display: none;
+.hide-important {
+    display: none !important;
 }
-
-.show {
-    display: block;
-}
-
 
 /* DOCUMENT STYLES */
 #footer {

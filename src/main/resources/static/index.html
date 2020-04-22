@@ -32,36 +32,40 @@
             <button id="login-btn" class="btn btn-dark">
                 <i class="fab fa-github"></i> Sign in with GitHub
             </button>
+            <button id="logout-btn" class="btn btn-secondary hide-important">
+                Logout
+            </button>
         </div>
     </div>
 
     <div class="container">
 
-        <div class="row justify-content-center h-100 my-5">
-            <!-- Join channel button group with input field for username -->
-            <form id="join-form" name="join-form" class="col-sm-4">
-                <div class="input-group">
-                    <input id="username" type="text" class="form-control" autocomplete="off" placeholder="join a channel..." />
-                    <div class="input-group-append">
-                        <button class="btn btn-primary fas fa-sign-in-alt" type="submit"></button>
-                    </div>
-                </div>
-            </form>
-            <!-- Leave room button -->
-            <div class="col-sm-1">
-                <button id="leave-btn" class="btn btn-secondary" type="submit">Leave Channel</button>
-            </div>
-        </div>
-
         <!-- Shows status of the connection -->
-        <div id="status" class="my-3 row justify-content-center h-100 my-1" hidden>
+        <div id="status" class="my-3 row justify-content-center my-1" hidden>
             <!-- populated by JS, hidden by default -->
         </div>
 
-        <!-- Main chat section -->
-        <section id="chat-section">
-            <div class="row justify-content-center h-100 my-5">
+        <!-- Main chat section (shown after user signs in) -->
+        <section id="chat-section" class="hide-important">
 
+            <!-- Join/Leave channels -->
+            <div class="row justify-content-center my-5">
+                <!-- button group with input field for channel -->
+                <div>
+                    <button id="join-btn" class="btn btn-success">
+                        Join Channel <i class="fas fa-sign-in-alt"></i>
+                    </button>
+                </div>
+                <!-- Leave room button -->
+                <div>
+                    <button id="leave-btn" class="btn btn-secondary hide-important" type="submit">
+                        Leave Channel
+                    </button>
+                </div>
+            </div>
+
+            <!-- Chat Window -->
+            <div class="row justify-content-center h-100 my-5">
                 <!-- Card used to render messages in the card body -->
                 <div class="col-md-8">
                     <div class="card">
@@ -79,7 +83,7 @@
                         <!-- card footer -->
                         <form id="message-controls" name="message-controls" class="card-footer">
                             <div class="input-group">
-                                <input id="message" class="form-control" placeholder="Type your message..."></input>
+                                <input id="message-input" class="form-control" placeholder="Type your message..." readonly></input>
                                 <div class="input-group-append">
                                     <button class="fas fa-location-arrow btn btn-primary" type="submit">
                                     </button>
@@ -88,18 +92,39 @@
                         </form>
                     </div>
                 </div>
-
             </div>
+
         </section>
     </div>
 
     <footer id="footer" class="container">
         <p id="footer-text">Developed by Han Xu - han10@bu.edu</p>
     </footer>
+
     <!-- sockJs and StompJs libraries used to work with websockets -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.4.0/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    
+        <!-- cookies convenience method for CSRF token. source: 
+    https://spring.io/guides/tutorials/spring-boot-oauth2/ -->
+    <script type="text/javascript" src="/webjars/js-cookie/js.cookie.js">
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                if (settings.type == 'POST' || settings.type == 'PUT'
+                    || settings.type == 'DELETE') {
+                    if (!(/^http:.*/.test(settings.url) || /^https:.*/
+                        .test(settings.url))) {
+                        // Only send the token to relative URLs i.e. locally.
+                        xhr.setRequestHeader("X-XSRF-TOKEN",
+                            Cookies.get('XSRF-TOKEN'));
+                    }
+                }
+            }
+        });
+    </script>
+
     <script src="/js/script.js"></script>
+    <script src="/js/test.js"></script>
 
 </body>
 

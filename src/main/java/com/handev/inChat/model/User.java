@@ -12,7 +12,7 @@ import java.util.List;
 @Table(name = "users")
 public class User {
 
-    // TODO: 4/20/20 implement Builder class for User
+    // TODO: 4/20/20 implement Builder Pattern for User
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
