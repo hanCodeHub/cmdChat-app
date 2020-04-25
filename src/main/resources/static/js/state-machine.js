@@ -19,8 +19,7 @@ class ChatPageStateMachine {
         if (this.loggedInState !== newState || 
             this.loggedOutState !== newState || 
             this.chattingState !== newState) {
-                console.log("cannot change to a state that does not exist")
-                return null
+                throw "Unsupported operation: cannot change to a state that does not exist."
             }
         this.state = newState
     }
