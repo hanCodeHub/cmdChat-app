@@ -1,14 +1,16 @@
-package com.handev.inChat;
+package com.handev.cmdChat;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+/**
+ * Main driver class for this application
+ */
 @SpringBootApplication
-public class InChatApplication {
+public class CmdChatApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(InChatApplication.class, args);
-
+		SpringApplication.run(CmdChatApplication.class, args);
 	}
 
 }

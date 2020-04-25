@@ -1,4 +1,4 @@
-package com.handev.inChat.model;
+package com.handev.cmdChat.model;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

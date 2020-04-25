@@ -1,7 +1,9 @@
-package com.handev.inChat.controller;
+package com.handev.cmdChat.controller;
 
-import com.handev.inChat.model.TextMessage;
-import com.handev.inChat.model.UserRepo;
+import com.handev.cmdChat.model.TextMessage;
+import com.handev.cmdChat.model.TextMessageRepo;
+import com.handev.cmdChat.model.User;
+import com.handev.cmdChat.model.UserRepo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,16 +18,20 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 /**
- * Controller for handling and broadcasting User chat events.
+ * Controller for handling and broadcasting public chat messages.
  * @author Han Xu
  */
 @Controller
-public class UserChatController {
+public class PublicChatController {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(UserChatController.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(PublicChatController.class);
+
+    @Autowired
+    private TextMessageRepo textMessageRepo;
 
     @Autowired
     private UserRepo userRepo;
+
 
     /**
      * Handles a new user joining the chat.
@@ -56,5 +62,33 @@ public class UserChatController {
         return message;  // broadcasts message to channel
     }
 
+
+    /**
+     * Broadcasts incoming message to subscribers of /topic/public.
+     * message.state == CHAT
+     * @param message the TextMessage JSON received from client
+     * @return the message payload to client subscribers of @SendTo destination
+     */
+    @MessageMapping("/chat.send/public/{channel}")
+    @SendTo("/topic/public/{channel}")
+    public TextMessage sendMessage(
+            @DestinationVariable String channel,
+            @Payload TextMessage message) {
+
+        LOGGER.info("Message sent by " + message.getSender() + " in public channel " + channel);
+
+        // adds current timestamp to message
+        message.setDateTime(LocalDateTime.now());
+
+        // saves message to a User if sender name was provided
+        if (message.getSender() != null) {
+            User user = userRepo.findByName(message.getSender());
+            message.setUser(user);
+        }
+
+        // saves message to repo and return it to channel
+        textMessageRepo.save(message);
+        return message;  // broadcasts message
+    }
 
 }

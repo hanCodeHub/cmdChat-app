@@ -1,11 +1,51 @@
 'use strict'
+// Configuration of stompJs documentation: 
+// https://stomp-js.github.io/stomp-websocket/codo/extra/docs-src/Usage.md.html
 
+
+// CONNECTION VARIABLES
 let stompClient  // assigned when client connects to STOMP server
 let username  // assigned when user signs in
 let subscription  // the channel object that user is subscribed to
 
-// Configuration of stompJs documentation: 
-// https://stomp-js.github.io/stomp-websocket/codo/extra/docs-src/Usage.md.html
+// EVENT LISTENERS ON DOM ELEMENTS
+// login with GitHub
+const loginBtn = document.querySelector('#login-btn')
+loginBtn.addEventListener('click', authenticate)
+
+// logs user out
+const logoutBtn = document.querySelector('#logout-btn')
+logoutBtn.addEventListener('click', logout)
+
+// send message
+const messageControls = document.querySelector('#message-controls')
+messageControls.addEventListener('submit', sendMessage)
+
+// connect to STOMP server and joins channel
+const joinBtn = document.querySelector('#join-btn')
+joinBtn.addEventListener('click', connect)
+
+// leaves the current channel
+const leaveBtn = document.querySelector('#leave-btn')
+leaveBtn.addEventListener('click', unsubscribe)
+
+
+// objects to pass into state machine
+
+// *********** INITIALIZE THESE IN THE STATE MACHINE *************
+const connectionVars = {
+    stompClient = null,
+    username = null,
+    subsription = null
+}
+
+const domVars = {
+    loginBtn: loginBtn,
+    logoutBtn: logoutBtn,
+    messageControls: messageControls,
+    joinBtn: joinBtn,
+    leaveBtn: leaveBtn
+}
 
 
 // event handler for a user to connect to a STOMP server
@@ -15,8 +55,8 @@ const connect = () => {
         // creates WebSocket client and connects to STOMP server with SockJS
         stompClient = Stomp.over(new SockJS('/ws'))
         stompClient.connect({}, onConnect, onError)
-    
-    // if there is already a STOMP connection user subscribes to a channel
+
+        // if there is already a STOMP connection user subscribes to a channel
     } else {
         subscribe(null)
     }
@@ -219,7 +259,7 @@ const onUserPing = async (name) => {
     const bannerText = document.querySelector('#banner-text')
     // if user exists, fetches all user data from secured endpoint /user
     if (name) {
-        try { 
+        try {
             await fetch("/user")
                 .then(res => res.json())
                 .then(user => {  // user is in logged in state
@@ -268,7 +308,7 @@ const logout = async () => {
     // clear username and disconnect from STOMP server
     username = null
     disconnect()
-    
+
     try {
         await fetch("/logout", {
             method: "POST"
@@ -288,32 +328,10 @@ const onUserLoggedOut = () => {
     bannerText.innerHTML = "Sign in and start chatting!"
     // hides logout button and chat section. shows login button.
     document.querySelector('#logout-btn').classList.add("hide-important")
-    document.querySelector('#login-btn').classList.remove("hide-important") 
+    document.querySelector('#login-btn').classList.remove("hide-important")
     document.querySelector('#chat-section').classList.add("hide-important")
 }
 
-
-// EVENT LISTENERS
-
-// login with GitHub
-const loginBtn = document.querySelector('#login-btn')
-loginBtn.addEventListener('click', authenticate)
-
-// logs user out
-const logoutBtn = document.querySelector('#logout-btn')
-logoutBtn.addEventListener('click', logout)
-
-// send message
-const messageControls = document.querySelector('#message-controls')
-messageControls.addEventListener('submit', sendMessage)
-
-// connect to STOMP server and joins channel
-const joinBtn = document.querySelector('#join-btn')
-joinBtn.addEventListener('click', connect)
-
-// leaves the current channel
-const leaveBtn = document.querySelector('#leave-btn')
-leaveBtn.addEventListener('click', unsubscribe)
 
 
 // RUNS WHEN PAGE LOADS

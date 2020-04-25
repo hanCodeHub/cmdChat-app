@@ -1,7 +1,7 @@
-package com.handev.inChat.controller;
+package com.handev.cmdChat.controller;
 
-import com.handev.inChat.model.MessageState;
-import com.handev.inChat.model.TextMessage;
+import com.handev.cmdChat.model.MessageState;
+import com.handev.cmdChat.model.TextMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

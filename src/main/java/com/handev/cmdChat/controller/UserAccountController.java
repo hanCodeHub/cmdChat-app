@@ -1,8 +1,8 @@
-package com.handev.inChat.controller;
+package com.handev.cmdChat.controller;
 
 
-import com.handev.inChat.model.User;
-import com.handev.inChat.model.UserRepo;
+import com.handev.cmdChat.model.User;
+import com.handev.cmdChat.model.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -71,9 +71,8 @@ public class UserAccountController {
         if (userRepo.findByName(user.getName()) != null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "user already exists");
         }
-        User savedUser = userRepo.save(user);
+        var savedUser = userRepo.save(user);
         return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
     }
-
 
 }

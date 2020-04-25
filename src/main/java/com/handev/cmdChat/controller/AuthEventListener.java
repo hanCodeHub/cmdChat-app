@@ -1,7 +1,7 @@
-package com.handev.inChat.controller;
+package com.handev.cmdChat.controller;
 
-import com.handev.inChat.model.User;
-import com.handev.inChat.model.UserRepo;
+import com.handev.cmdChat.model.User;
+import com.handev.cmdChat.model.UserRepo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,11 +35,12 @@ public class AuthEventListener {
         var oauthUserId = (Integer) principal.getAttributes().get("id");
         LOGGER.info("OAuth user signed in: " + oauthUserName);
 
-        // saves user if not exist already, updates its old name otherwise
         User savedUser = userRepo.findByOauthClientId(oauthUserId);
+        // saves user if not exists
         if (savedUser == null) {
             var user = new User(oauthUserName, oauthUserId);
             userRepo.save(user);
+        // updates user's old name if different
         } else if (!savedUser.getName().equals(oauthUserName)) {
             savedUser.setName(oauthUserName);
         }

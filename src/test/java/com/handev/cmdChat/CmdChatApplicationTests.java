@@ -1,10 +1,10 @@
-package com.handev.inChat;
+package com.handev.cmdChat;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class InChatApplicationTests {
+class CmdChatApplicationTests {
 
 	@Test
 	void contextLoads() {

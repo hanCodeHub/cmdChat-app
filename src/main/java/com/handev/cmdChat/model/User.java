@@ -1,4 +1,4 @@
-package com.handev.inChat.model;
+package com.handev.cmdChat.model;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;

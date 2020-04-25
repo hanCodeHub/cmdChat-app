@@ -1,4 +1,4 @@
-package com.handev.inChat.config;
+package com.handev.cmdChat.config;
 
 
 import org.springframework.context.annotation.Configuration;

@@ -1,4 +1,4 @@
-package com.handev.inChat.model;
+package com.handev.cmdChat.model;
 
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
