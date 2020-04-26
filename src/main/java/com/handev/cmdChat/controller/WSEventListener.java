@@ -15,48 +15,45 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import java.util.Map;
 
 /**
- * Listens for and handles events on the WebSocket connection
+ * Listens for and handles events on the WebSocket connection.
+ *
  * @author Han Xu
  */
 @Component
 public class WSEventListener {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(WSEventListener.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(WSEventListener.class);
 
-    // contains methods for working with STOMP messages
-    @Autowired
-    private SimpMessageSendingOperations sendOps;
+  // contains methods for working with STOMP messages
+  @Autowired private SimpMessageSendingOperations sendOps;
 
-    /**
-     * Listens for and handles a disconnected session event.
-     * Triggers either from user closing browser tab or clicking Logout.
-     * @param event obj representing a disconnected session
-     */
-    @EventListener
-    public void handleDisconnect(SessionDisconnectEvent event) {
-        // StompHeaderAccessor creates message from decoded STOMP frame
-        // or encodes message to STOMP frame
-        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
+  /**
+   * Listens for and handles a disconnected session event. Triggers either from user closing browser
+   * tab or clicking Logout.
+   *
+   * @param event obj representing a disconnected session
+   */
+  @EventListener
+  public void handleDisconnect(SessionDisconnectEvent event) {
+    // StompHeaderAccessor creates message from decoded STOMP frame
+    // or encodes message to STOMP frame
+    StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
 
-        // retrieves user's username and channel from session map
-        Map<String, Object> sessionMap = accessor.getSessionAttributes();
-        if (sessionMap != null && !sessionMap.isEmpty()) {
-            String username = (String) sessionMap.get("username");
-            String channel = (String) sessionMap.get("channel");
+    // retrieves user's username and channel from session map
+    Map<String, Object> sessionMap = accessor.getSessionAttributes();
+    if (sessionMap != null && !sessionMap.isEmpty()) {
+      String username = (String) sessionMap.get("username");
+      String channel = (String) sessionMap.get("channel");
 
-            // logs the user disconnecting
-            LOGGER.info(username + " has disconnected from " + channel);
-            // builds message and send to clients subscribed to given channel
-            TextMessage message = new TextMessageBuilder(MessageState.DISCONNECT)
-                            .withSender(username)
-                            .build();
+      // logs the user disconnecting
+      LOGGER.info(username + " has disconnected from " + channel);
+      // builds message and send to clients subscribed to given channel
+      TextMessage message =
+          new TextMessageBuilder(MessageState.DISCONNECT).withSender(username).build();
 
-            // updates client channel
-            String endpoint = "/topic/public/" + channel;
-            sendOps.convertAndSend(endpoint, message);
-
-        }
-
+      // updates client channel
+      String endpoint = "/topic/public/" + channel;
+      sendOps.convertAndSend(endpoint, message);
     }
-
+  }
 }

@@ -1,6 +1,5 @@
 package com.handev.cmdChat.controller;
 
-
 import com.handev.cmdChat.model.User;
 import com.handev.cmdChat.model.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,58 +21,56 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Controller class for handling user account details
+ * Controller class for handling user account details.
+ *
  * @author Han Xu
  */
 @RestController
 public class UserAccountController {
 
-    @Autowired
-    UserRepo userRepo;
+  @Autowired UserRepo userRepo;
 
+  /**
+   * Returns details of current signed-in user in a Map.
+   *
+   * @see <a href="https://spring.io/guides/tutorials/spring-boot-oauth2/">Spring Boot OAuth2</a>
+   * @param principal the user object signed in via OAuth2
+   */
+  @GetMapping("/user")
+  public Map<String, Object> user(@AuthenticationPrincipal OAuth2User principal) {
 
-    /**
-     * Returns details of current signed-in user in a Map.
-     * @see <a href="https://spring.io/guides/tutorials/spring-boot-oauth2/">Spring Boot OAuth2</a>
-     * @param principal the user object signed in via OAuth2
-     */
-    @GetMapping("/user")
-    public Map<String, Object> user(@AuthenticationPrincipal OAuth2User principal) {
+    /* stores user details in a map and returns it as serialized JSON */
+    Map<String, Object> map = new HashMap<>();
+    map.put("name", principal.getAttribute("name"));
+    map.put("username", principal.getAttribute("login"));
+    return map;
+  }
 
-        /* stores user details in a map and returns it as serialized JSON */
-        Map<String, Object> map = new HashMap<>();
-        map.put("name", principal.getAttribute("name"));
-        map.put("username", principal.getAttribute("login"));
-        return map;
+  /**
+   * Obtains the current authenticated user and returns its name.
+   *
+   * @return the name of the user if logged in
+   */
+  @GetMapping("/user/ping")
+  public String pingUserName() {
+
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    String currentUserName = "";
+    // cannot be anonymous token -> means user has not logged in.
+    if (!(authentication instanceof AnonymousAuthenticationToken)) {
+      currentUserName = authentication.getName();
     }
+    return currentUserName;
+  }
 
-    /**
-     * Obtains the current authenticated user and returns its name
-     * @return the name of the user if logged in
-     */
-    @GetMapping("/user/ping")
-    public String pingUserName() {
+  /** Handles User creation on registration. */
+  @PostMapping("/user/register")
+  public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentUserName = "";
-        // cannot be anonymous token -> means user has not logged in.
-        if (!(authentication instanceof AnonymousAuthenticationToken)) {
-            currentUserName = authentication.getName();
-        }
-        return currentUserName;
+    if (userRepo.findByName(user.getName()) != null) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "user already exists");
     }
-
-    /**
-     * Handles User creation on registration
-     */
-    @PostMapping("/user/register")
-    public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
-
-        if (userRepo.findByName(user.getName()) != null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "user already exists");
-        }
-        User savedUser = userRepo.save(user);
-        return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
-    }
-
+    User savedUser = userRepo.save(user);
+    return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
+  }
 }

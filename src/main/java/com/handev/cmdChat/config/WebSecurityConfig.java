@@ -16,38 +16,47 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @Configuration
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    /**
-     * Defines which endpoints are allowed and which ones are secured.
-     *
-     * @param http HttpSecurity object with authentication config methods
-     * @throws Exception
-     */
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http.headers().frameOptions().sameOrigin();  // allow same origin requests
+  /**
+   * Defines which endpoints are allowed and which ones are secured.
+   *
+   * @param http HttpSecurity object with authentication config methods
+   * @throws Exception HTTP Exception caught when client communiates with server
+   */
+  @Override
+  protected void configure(HttpSecurity http) throws Exception {
+    http.headers().frameOptions().sameOrigin(); // allow same origin requests
 
-        http
-            .csrf(c -> c  // creates csrf cookie for frontend client
+    http.csrf(
+            c ->
+                c // creates csrf cookie for frontend client
                     .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                     // ignores csrf for these endpoints
-                    .ignoringAntMatchers("/h2-console/**", "/logout")
-            )
-            .authorizeRequests(a -> a  // customize secured endpoints
-                    .antMatchers("/", "/error", "/webjars/**", "/user/ping", "/user/register",
-                            "/js/**", "/img/**", "/css/**", "/h2-console/**")
+                    .ignoringAntMatchers("/h2-console/**", "/logout"))
+        .authorizeRequests(
+            a ->
+                a // customize secured endpoints
+                    .antMatchers(
+                        "/",
+                        "/error",
+                        "/webjars/**",
+                        "/user/ping",
+                        "/user/register",
+                        "/js/**",
+                        "/img/**",
+                        "/css/**",
+                        "/h2-console/**")
                     .permitAll() // allow these endpoints and static assets
-                    .anyRequest().authenticated() // any other endpoints secured
+                    .anyRequest()
+                    .authenticated() // any other endpoints secured
             )
-            // return 401 if unauthorized
-            .exceptionHandling(e -> e
-                    .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
-            )
-            .oauth2Login()
-            .and()
-            .logout()
-                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-                .logoutSuccessUrl("/")
-                .permitAll();
-    }
-
+        // return 401 if unauthorized
+        .exceptionHandling(
+            e -> e.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
+        .oauth2Login()
+        .and()
+        .logout()
+        .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+        .logoutSuccessUrl("/")
+        .permitAll();
+  }
 }
