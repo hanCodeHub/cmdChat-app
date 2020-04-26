@@ -1,6 +1,7 @@
 package com.handev.cmdChat.controller;
 
 import com.handev.cmdChat.model.User;
+import com.handev.cmdChat.model.UserBuilder;
 import com.handev.cmdChat.model.UserRepo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +39,10 @@ public class AuthEventListener {
         User savedUser = userRepo.findByOauthClientId(oauthUserId);
         // saves user if not exists
         if (savedUser == null) {
-            var user = new User(oauthUserName, oauthUserId);
+            var user = new UserBuilder(oauthUserName)
+                        .withOauthClientId(oauthUserId)
+                        .build();
+
             userRepo.save(user);
         // updates user's old name if different
         } else if (!savedUser.getName().equals(oauthUserName)) {

@@ -5,14 +5,12 @@ import javax.validation.constraints.Size;
 import java.util.List;
 
 /**
- * Bean for a User which has a collection of TextMessage
+ * Bean for a User which has a collection of TextMessage.
  * @author Han Xu
  */
 @Entity
 @Table(name = "users")
 public class User {
-
-    // TODO: 4/20/20 implement Builder Pattern for User
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,17 +32,15 @@ public class User {
     // ADD A LIST OF CHANNELS HERE THAT USER INSTANCE BELONGS TO
 
     /* constructors */
-
     public User() {}
 
-    public User(String name) {
-        this.name = name;
+    public User(UserBuilder builder) {
+        this.name = builder.getName();
+        this.messages = builder.getMessages();
+        this.oauthClientId = builder.getOauthClientId();
+        this.password = builder.getPassword();
     }
 
-    public User(String name, Integer oauthClientId) {
-        this.oauthClientId = oauthClientId;
-        this.name = name;
-    }
 
     /* getters and setters */
 
@@ -88,7 +84,6 @@ public class User {
         this.messages = messages;
     }
 
-
     @Override
     public String toString() {
         return "User{" +
@@ -96,4 +91,5 @@ public class User {
                 ", name='" + name + '\'' +
                 '}';
     }
+
 }

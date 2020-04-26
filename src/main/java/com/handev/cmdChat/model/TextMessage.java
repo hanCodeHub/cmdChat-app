@@ -42,15 +42,12 @@ public class TextMessage {
     public TextMessage() {
     }
 
-    /**
-     * Constructor with sender's username and state. Datetime always stamped with now.
-     * @param state message state
-     * @param sender sender username
-     */
-    public TextMessage(MessageState state, String sender) {
-        this.state = state;
-        this.sender = sender;
-        this.dateTime = LocalDateTime.now();
+    public TextMessage(TextMessageBuilder builder) {
+        this.content = builder.getContent();
+        this.sender = builder.getSender();
+        this.state = builder.getState();
+        this.dateTime = builder.getDateTime();
+        this.user = builder.getUser();
     }
 
     /* GETTERS / SETTERS  */
