@@ -63,7 +63,7 @@ public class UserAccountController {
     }
 
     /**
-     * Handles User creation on login and saves them to DB
+     * Handles User creation on registration
      */
     @PostMapping("/user/register")
     public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
