@@ -1,9 +1,6 @@
 package com.handev.cmdChat.controller;
 
-import com.handev.cmdChat.model.TextMessage;
-import com.handev.cmdChat.model.TextMessageRepo;
-import com.handev.cmdChat.model.User;
-import com.handev.cmdChat.model.UserRepo;
+import com.handev.cmdChat.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,8 +77,8 @@ public class PublicChatController {
         // adds current timestamp to message
         message.setDateTime(LocalDateTime.now());
 
-        // saves message to a User if sender name was provided
-        if (message.getSender() != null) {
+        // saves chat message to a User if sender name was provided
+        if (message.getSender() != null && message.getState() == MessageState.CHAT) {
             User user = userRepo.findByName(message.getSender());
             message.setUser(user);
         }

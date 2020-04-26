@@ -31,15 +31,15 @@ public class AuthEventListener {
     @EventListener
     public void handleAuthSuccess(AuthenticationSuccessEvent authSuccessEvent){
         // obtains the OAuthClient username and id from the current authenticated user
-        var principal = (OAuth2User) authSuccessEvent.getAuthentication().getPrincipal();
-        var oauthUserName = principal.getAttributes().get("login").toString();
-        var oauthUserId = (Integer) principal.getAttributes().get("id");
+        OAuth2User principal = (OAuth2User) authSuccessEvent.getAuthentication().getPrincipal();
+        String oauthUserName = principal.getAttributes().get("login").toString();
+        Integer oauthUserId = (Integer) principal.getAttributes().get("id");
         LOGGER.info("OAuth user signed in: " + oauthUserName);
 
         User savedUser = userRepo.findByOauthClientId(oauthUserId);
         // saves user if not exists
         if (savedUser == null) {
-            var user = new UserBuilder(oauthUserName)
+            User user = new UserBuilder(oauthUserName)
                         .withOauthClientId(oauthUserId)
                         .build();
 
@@ -58,7 +58,7 @@ public class AuthEventListener {
      */
     @EventListener
     public void handleAuthFail(AbstractAuthenticationFailureEvent authFailEvent){
-        var principal = authFailEvent.getAuthentication().getPrincipal();
+        Object principal = authFailEvent.getAuthentication().getPrincipal();
 
         LOGGER.info("OAuth2 authentication failed: " + principal);
     }

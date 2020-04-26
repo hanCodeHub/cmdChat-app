@@ -18,26 +18,42 @@ public class TextMessageBuilder {
         this.state = state;
     }
 
+    /**
+     * Optional builder method to add content to TextMessage product.
+     */
     public TextMessageBuilder withContent(String content) {
         this.content = content;
         return this;
     }
 
+    /**
+     * Optional builder method to add sender to TextMessage product.
+     */
     public TextMessageBuilder withSender(String sender) {
         this.sender = sender;
         return this;
     }
 
+    /**
+     * Optional builder method to add datetime to TextMessage product.
+     */
     public TextMessageBuilder withDateTime(LocalDateTime dateTime) {
         this.dateTime = dateTime;
         return this;
     }
 
+    /**
+     * Optional builder method to add user to TextMessage product.
+     */
     public TextMessageBuilder withUser(User user) {
         this.user = user;
         return this;
     }
 
+    /**
+     * Builds the TextMessage product.
+     * @return new TextMessage with the optional properties built.
+     */
     public TextMessage build() {
         return new TextMessage(this);
     }

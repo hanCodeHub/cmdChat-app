@@ -17,21 +17,34 @@ public class UserBuilder {
         this.name = name;
     }
 
+    /**
+     * Optional builder method to add oauthClientId to User product.
+     */
     public UserBuilder withOauthClientId(Integer oauthClientId) {
         this.oauthClientId = oauthClientId;
         return this;
     }
 
+    /**
+     * Optional builder method to add password to User product.
+     */
     public UserBuilder withPassword(String password) {
         this.password = password;
         return this;
     }
 
+    /**
+     * Optional builder method to add List of TextMessages to User product.
+     */
     public UserBuilder withMessages(List<TextMessage> messages) {
         this.messages = messages;
         return this;
     }
 
+    /**
+     * Builds the User product.
+     * @return new User with the optional properties built.
+     */
     public User build() {
         return new User(this);
     }

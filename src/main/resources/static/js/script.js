@@ -2,7 +2,8 @@
 
 let stompClient  // assigned when client connects to STOMP server
 let username  // assigned when user signs in
-let subscription  // the channel object that user is subscribed to
+let subscription  // the subscription object to a STOMP endpoint
+let channel = 'abc' // the name of the channel - CHANGE TO DYNAMIC IN FUTURE RELEASE
 
 // Configuration of stompJs documentation: 
 // https://stomp-js.github.io/stomp-websocket/codo/extra/docs-src/Usage.md.html
@@ -36,8 +37,6 @@ const subscribe = (event) => {
     if (event) event.preventDefault();
     if (subscription) return; // if user already subscribed, skip this for now
 
-    // hardcoded - CHANGE to dynamic when multichannels are available in future release 
-    const channel = 'abc'
     // subscribe(destination, callback every time something is broadcasted to destination)
     subscription = stompClient.subscribe(`/topic/public/${channel}`, renderMessage)
 
@@ -58,23 +57,20 @@ const subscribe = (event) => {
 const unsubscribe = () => {
     if (!subscription) return;
 
-    subscription.unsubscribe();
-    subscription = null
-
     // shows the join button and hides leave button. makes message-input readonly
     document.querySelector('#join-btn').classList.remove("hide-important")
     document.querySelector('#leave-btn').classList.add("hide-important")
     document.querySelector("#message-input").setAttribute('readonly', true)
 
-    // calls renderMessage manually because connection to server is cut
+    // Broadcasts to channel this user is leaving
     const disconnectMessage = {
         state: "DISCONNECT",
         sender: username,
     }
-    const payload = {
-        body: JSON.stringify(disconnectMessage)
-    }
-    renderMessage(payload)
+    stompClient.send(`/app/chat.send/public/${channel}`, {}, JSON.stringify(disconnectMessage))
+
+    subscription.unsubscribe();
+    subscription = null
 }
 
 
@@ -122,8 +118,6 @@ const sendMessage = (event) => {
 
     const messageInput = document.querySelector('#message-input')
     const messageContent = messageInput.value.trim()
-
-    let channel = 'abc'  // hard coded channel for now
 
     // constructs the message object
     if (messageContent && stompClient && username) {

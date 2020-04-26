@@ -1,6 +1,7 @@
 package com.handev.cmdChat.controller;
 
 import com.handev.cmdChat.model.MessageState;
+import com.handev.cmdChat.model.TextMessage;
 import com.handev.cmdChat.model.TextMessageBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +36,7 @@ public class WSEventListener {
     public void handleDisconnect(SessionDisconnectEvent event) {
         // StompHeaderAccessor creates message from decoded STOMP frame
         // or encodes message to STOMP frame
-        var accessor = StompHeaderAccessor.wrap(event.getMessage());
+        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
 
         // retrieves user's username and channel from session map
         Map<String, Object> sessionMap = accessor.getSessionAttributes();
@@ -46,7 +47,7 @@ public class WSEventListener {
             // logs the user disconnecting
             LOGGER.info(username + " has disconnected from " + channel);
             // builds message and send to clients subscribed to given channel
-            var message = new TextMessageBuilder(MessageState.DISCONNECT)
+            TextMessage message = new TextMessageBuilder(MessageState.DISCONNECT)
                             .withSender(username)
                             .build();
 

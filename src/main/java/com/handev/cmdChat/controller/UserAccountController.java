@@ -56,6 +56,7 @@ public class UserAccountController {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUserName = "";
+        // cannot be anonymous token -> means user has not logged in.
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
             currentUserName = authentication.getName();
         }
@@ -71,7 +72,7 @@ public class UserAccountController {
         if (userRepo.findByName(user.getName()) != null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "user already exists");
         }
-        var savedUser = userRepo.save(user);
+        User savedUser = userRepo.save(user);
         return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
     }
 

@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -28,7 +29,7 @@ class UserBuilderTest {
      */
     @Test
     void withOauthClientId() {
-        var testUser = builder.withOauthClientId(123).build();
+        User testUser = builder.withOauthClientId(123).build();
         assertEquals(123, testUser.getOauthClientId());
         assertNull(testUser.getMessages());
         assertNull(testUser.getPassword());
@@ -39,7 +40,7 @@ class UserBuilderTest {
      */
     @Test
     void withPassword() {
-        var testUser = builder.withPassword("StrongPassword").build();
+        User testUser = builder.withPassword("StrongPassword").build();
         assertEquals("StrongPassword", testUser.getPassword());
         assertNull(testUser.getOauthClientId());
         assertNull(testUser.getMessages());
@@ -50,15 +51,15 @@ class UserBuilderTest {
      */
     @Test
     void withMessages() {
-        var testMessage1 = new TextMessage();
-        var testMessage2 = new TextMessage();
+        TextMessage testMessage1 = new TextMessage();
+        TextMessage testMessage2 = new TextMessage();
         int code1 = testMessage1.hashCode();
         int code2 = testMessage2.hashCode();
 
-        var messages = new ArrayList<>(
+        List<TextMessage> messages = new ArrayList<>(
                 Arrays.asList(testMessage1, testMessage2)
         );
-        var testUser = builder.withMessages(messages).build();
+        User testUser = builder.withMessages(messages).build();
         // tests for hashcode equality of original TextMessages
         assertEquals(code1, testUser.getMessages().get(0).hashCode());
         assertEquals(code2, testUser.getMessages().get(1).hashCode());
@@ -69,13 +70,13 @@ class UserBuilderTest {
      */
     @Test
     void build() {
-        var testMessage1 = new TextMessage();
-        var testMessage2 = new TextMessage();
-        var messages = new ArrayList<>(
+        TextMessage testMessage1 = new TextMessage();
+        TextMessage testMessage2 = new TextMessage();
+        List<TextMessage> messages = new ArrayList<>(
                 Arrays.asList(testMessage1, testMessage2)
         );
 
-        var testUser = builder
+        User testUser = builder
                         .withMessages(messages)
                         .withPassword("StrongPassword")
                         .withOauthClientId(123)

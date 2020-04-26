@@ -27,39 +27,52 @@ class TextMessageBuilderTest {
      */
     @Test
     void withContent() {
-        var testMessage = builder.withContent("hello world").build();
+        TextMessage testMessage = builder.withContent("hello world").build();
         assertEquals("hello world", testMessage.getContent());
         assertNull(testMessage.getSender());
         assertNull(testMessage.getDateTime());
         assertNull(testMessage.getUser());
     }
 
+    /**
+     * Tests the building of a TextMessage with sender property.
+     */
     @Test
     void withSender() {
-        var testMessage = builder.withSender("Han").build();
+        TextMessage testMessage = builder.withSender("Han").build();
         assertEquals("Han", testMessage.getSender());
     }
 
+    /**
+     * Tests the building of a TextMessage with datetime property.
+     */
     @Test
     void withDateTime() {
-        var dtNow = LocalDateTime.now();
-        var testMessage = builder.withDateTime(dtNow).build();
+        LocalDateTime dtNow = LocalDateTime.now();
+        TextMessage testMessage = builder.withDateTime(dtNow).build();
         assertEquals(dtNow, testMessage.getDateTime());
     }
 
+    /**
+     * Tests the building of a TextMessage with User property.
+     */
     @Test
     void withUser() {
-        var testUser = new User();
-        var userCode = testUser.hashCode();
-        var testMessage = builder.withUser(testUser).build();
+        // tests for hashcode equivalence
+        User testUser = new User();
+        int userCode = testUser.hashCode();
+        TextMessage testMessage = builder.withUser(testUser).build();
         assertEquals(userCode, testMessage.getUser().hashCode());
     }
 
+    /**
+     * Tests the building of a TextMessage with all properties.
+     */
     @Test
     void build() {
-        var dtNow = LocalDateTime.now();
-        var testUser = new User();
-        var testMessage = builder.withUser(testUser)
+        LocalDateTime dtNow = LocalDateTime.now();
+        User testUser = new User();
+        TextMessage testMessage = builder.withUser(testUser)
                         .withDateTime(dtNow)
                         .withSender("Han")
                         .withContent("Hello")
