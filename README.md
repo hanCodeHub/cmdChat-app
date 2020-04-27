@@ -1,5 +1,6 @@
 # CS665 Term Project - Han Xu
 
+Please note that the full commit history is in [this repo](https://github.com/hanCodeHub/cmdChat-app), which is under the same account as the one subscribed to the Project repo for CS665. 
 
 ### Description
 
@@ -44,7 +45,7 @@ If you want to chat with yourself, you can use a different browser and login wit
 
 ### Software design
 
-Due to the frameworks and libraries used in this project, some design patterns do not follow a traditional textbook implementation. For example, the repository interfaces do not need classes to implement them, and @Autowired components do not need explicit instantiation. For more info on how this works, please visit [Spring Beans and Dependency Injection](https://docs.spring.io/spring-boot/docs/current/reference/html/using-spring-boot.html#using-boot-spring-beans-and-dependency-injection).
+Due to the frameworks and libraries used in this project, some design patterns do not follow a traditional textbook implementation. For example, the repository interfaces do not need classes to implement them, and @Autowired components do not need explicit instantiation. For more info on how this works, please see [Spring Beans and Dependency Injection](https://docs.spring.io/spring-boot/docs/current/reference/html/using-spring-boot.html#using-boot-spring-beans-and-dependency-injection).
 
 Even though this project is a more real-world implementation, the benefits of the following design patterns remain the same. Also, it may be obvious that a chat application would benefit from the Observer pattern. In this rather simple project however, the broadcasting/messaging logic is already handled by the web socket framework and the STOMP protocol.
 
@@ -78,7 +79,7 @@ public interface UserRepo extends JpaRepository<User, Integer> {
 }
 ```
 
-Now any class make use of these queries by autowiring the repository:
+Now any class can make use of these queries by autowiring the repository:
 
 ```java
 @RestController
@@ -124,7 +125,7 @@ public class UserBuilder {
 }
 ```
 
-Finally, the client calls the `build()` method to return a User with the exact properties suitable for the situation. In the `AuthEventListener` class for example, when a user successfully authenticates via the OAuth2 3rd party client (GitHub), a user did not register with a password. The `UserBuilder` provides this flexibility:
+Finally, the client calls the `build()` method to return a User with the exact properties suitable for the situation. In the `AuthEventListener` class for example, when a user successfully authenticates via the OAuth2 3rd party client (GitHub), a user did not register with a password. The `UserBuilder` provides this flexibility to build a user without password:
 
 ```
 User user = new UserBuilder(oauthUserName).withOauthClientId(oauthUserId).build();
@@ -140,6 +141,38 @@ In a future release, the application will have a registration form with a passwo
 
 #### Callback
 
+A final mention needs to be made regarding the Callback pattern, even though it's not implemented in Java in this project. The frontend Javascript code relies heavily on callbacks, because it needs to wait for values to return at a later time when the user interacts with the interface. Examples include opening connections, subscribing to a channel, and sending messages.
+
+It does so by using functions that carry out tasks asynchronously without blocking the thread. Here's an abbreviated example of opening a connection to the STOMP server hosted by this application:
+
+```javascript
+const connect = () => {
+    if (username && !stompClient) {
+        // creates WebSocket client and connects to STOMP server with SockJS
+        stompClient = Stomp.over(new SockJS('/ws'))
+        stompClient.connect({}, onConnect, onError)
+    }
+}
+
+const onConnect = () => {
+    console.log(`${username} has connected to STOMP server`)
+    subscribe(null);
+}
+// inside subscribe():
+subscription = stompClient.subscribe(`/topic/public/${channel}`, renderMessage)
+```
+
+Here, the connect function is triggered by a user clicking a button in the UI. After the client connects to the STOMP server, it expects a callback at a later point when the server can return a response. `OnConnect` is the function that handles a successful connection, which calls another function called `subscribe`. This subscribes the user to a given channel, which expects another callback called `renderMessage`, which renders the message of a new user joining.
+
+This callback chain ensures that valuable resources are not wasted in polling the server continuously for a response. It solves a similar problem as the Observer pattern, but in a different way. The only processing is done when values are returned, so there is high efficiency in dealing with actions that rely on previous tasks being completed. Without callbacks, there would be a lot more code to handle the request/response interaction with the server.
+
+
 ### References
 
-links to libraries and resources.
+Here are the links to the technologies used in this project. Each framework or library was learned during the development process. Configuration code of this project may be similar to that of the resources, but application design and logic is not.
+
+- [Spring Boot Documentation](https://docs.spring.io/spring-boot/docs/current/reference/html/index.html)
+- [Spring Boot OAuth2 Tutorial](https://spring.io/guides/tutorials/spring-boot-oauth2/)
+- [Spring Boot WebSockets Guide](https://spring.io/guides/gs/messaging-stomp-websocket/)
+- [Spring Data JPA Documentation](https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#reference)
+- [STOMP JS Documentation](https://stomp-js.github.io/stomp-websocket/codo/extra/docs-src/Usage.md.html)
