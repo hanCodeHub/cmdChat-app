@@ -1,6 +1,5 @@
 # CS665 Term Project - Han Xu
 
-Please note that the full commit history is in [this repo](https://github.com/hanCodeHub/cmdChat-app), which is under the same account as the one subscribed to the Project repo for CS665. 
 
 ### Description
 
